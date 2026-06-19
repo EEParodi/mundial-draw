@@ -127,7 +127,9 @@ body{display:flex;justify-content:center}
   border:1px solid var(--border);
 }
 .team-card .rank{font-family:'Bebas Neue',cursive;font-size:13px;color:var(--primary);min-width:28px}
-.team-card .flag{font-size:22px;line-height:1;flex-shrink:0}
+.team-card .flag{flex-shrink:0;line-height:1}
+.flag-img{width:28px;height:21px;object-fit:cover;border-radius:3px;display:block;vertical-align:middle}
+.flag-img-sm{width:22px;height:16px;object-fit:cover;border-radius:2px;display:inline-block;vertical-align:middle}
 .team-card .name{font-size:15px;font-weight:600;flex:1;min-width:0}
 
 /* ── STEPPER ── */
@@ -224,7 +226,8 @@ body{display:flex;justify-content:center}
   background:var(--surface);border:1px solid var(--border);
   transform:rotateY(180deg);text-align:center;overflow:hidden;
 }
-.gb-flag{font-size:32px;line-height:1}
+.gb-flag{line-height:1}
+.gb-flag .flag-img{width:44px;height:33px;border-radius:4px}
 .gb-name{font-size:15px;font-weight:700;color:var(--text);line-height:1.2;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%}
 .gb-rank{font-size:11px;color:var(--primary);letter-spacing:.5px}
@@ -247,7 +250,8 @@ body{display:flex;justify-content:center}
 .qfp-side{
   flex:1;padding:12px;text-align:center;min-width:0;
 }
-.qfp-side .pf{font-size:18px}
+.qfp-side .pf{line-height:1}
+.qfp-side .pf .flag-img{width:24px;height:18px}
 .qfp-side .pn{font-size:13px;font-weight:600;line-height:1.2;
   overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .qfp-side .pp{font-size:11px;color:var(--muted)}
@@ -342,7 +346,7 @@ body{display:flex;justify-content:center}
 }
 .mc-team.win{background:rgba(220,38,38,.08)}
 .mc-team.lose{opacity:.45}
-.mc-team .tf{font-size:22px;flex-shrink:0}
+.mc-team .tf{flex-shrink:0;line-height:1}
 .mc-team .ti{flex:1;min-width:0}
 .mc-team .tn{font-weight:600;font-size:15px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -355,7 +359,7 @@ body{display:flex;justify-content:center}
   display:flex;align-items:center;gap:10px;
   padding:10px 14px;
 }
-.mc-team-score .tf{font-size:20px;flex-shrink:0}
+.mc-team-score .tf{flex-shrink:0;line-height:1}
 .mc-team-score .ti{flex:1;min-width:0}
 .mc-team-score .tn{font-weight:600;font-size:14px;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -418,9 +422,32 @@ body{display:flex;justify-content:center}
 }
 .champ-banner .cb-trophy{font-size:48px;line-height:1;margin-bottom:6px}
 .champ-banner .cb-sub{font-size:10px;letter-spacing:4px;color:var(--primary);text-transform:uppercase;margin-bottom:10px}
-.champ-banner .cb-flag{font-size:40px;line-height:1;margin-bottom:4px}
+.champ-banner .cb-flag{line-height:1;margin-bottom:4px}
+.champ-banner .cb-flag .flag-img{width:56px;height:42px;border-radius:5px}
 .champ-banner .cb-team{font-family:'Bebas Neue',cursive;font-size:40px;letter-spacing:2px;line-height:1}
 .champ-banner .cb-player{font-size:14px;color:var(--muted);margin-top:6px}
+
+/* ── DESKTOP ── */
+@media(min-width:900px){
+  .app{max-width:1080px}
+
+  .h1{font-size:64px}
+  .h2{font-size:38px}
+  .h3{font-size:25px}
+
+  .player-inputs.two-col{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+
+  .card-grid{grid-template-columns:repeat(4,1fr);gap:14px}
+  .grid-card{height:240px}
+  .gb-flag .flag-img{width:56px;height:42px}
+  .gb-name{font-size:18px;max-width:95%}
+  .gb-rank{font-size:13px}
+  .gb-player{font-size:16px;max-width:95%}
+
+  .bracket-scroll{overflow-x:visible;margin:0;padding:0 0 24px}
+  .bracket-cols{padding-right:0}
+  .bracket-col{min-width:0;flex:1}
+}
 
 /* ── REDUCED MOTION ── */
 @media(prefers-reduced-motion:reduce){
@@ -559,26 +586,30 @@ body{display:flex;justify-content:center}
 // DATA
 // ════════════════════════════════
 const TOP8 = [
-  {rank:1,  name:'Argentina',  flag:'🇦🇷'},
-  {rank:2,  name:'Spain',      flag:'🇪🇸'},
-  {rank:3,  name:'France',     flag:'🇫🇷'},
-  {rank:4,  name:'England',    flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-  {rank:5,  name:'Portugal',   flag:'🇵🇹'},
-  {rank:6,  name:'Brazil',     flag:'🇧🇷'},
-  {rank:7,  name:'Germany',    flag:'🇩🇪'},
-  {rank:8,  name:'Netherlands',flag:'🇳🇱'},
+  {rank:1,  name:'Argentina',  code:'ar'},
+  {rank:2,  name:'Spain',      code:'es'},
+  {rank:3,  name:'France',     code:'fr'},
+  {rank:4,  name:'England',    code:'gb-eng'},
+  {rank:5,  name:'Portugal',   code:'pt'},
+  {rank:6,  name:'Brazil',     code:'br'},
+  {rank:7,  name:'Germany',    code:'de'},
+  {rank:8,  name:'Netherlands',code:'nl'},
 ];
 
 const LOW8 = [
-  {rank:61, name:'Saudi Arabia',  flag:'🇸🇦'},
-  {rank:63, name:'Jordan',        flag:'🇯🇴'},
-  {rank:64, name:'Bosnia & Herz.',flag:'🇧🇦'},
-  {rank:67, name:'Cabo Verde',    flag:'🇨🇻'},
-  {rank:73, name:'Ghana',         flag:'🇬🇭'},
-  {rank:82, name:'Haiti',         flag:'🇭🇹'},
-  {rank:83, name:'Curaçao',       flag:'🇨🇼'},
-  {rank:85, name:'New Zealand',   flag:'🇳🇿'},
+  {rank:61, name:'Saudi Arabia',  code:'sa'},
+  {rank:63, name:'Jordan',        code:'jo'},
+  {rank:64, name:'Bosnia & Herz.',code:'ba'},
+  {rank:67, name:'Cabo Verde',    code:'cv'},
+  {rank:73, name:'Ghana',         code:'gh'},
+  {rank:82, name:'Haiti',         code:'ht'},
+  {rank:83, name:'Curaçao',       code:'cw'},
+  {rank:85, name:'New Zealand',   code:'nz'},
 ];
+
+function flagImg(code, cls) {
+  return `<img class="${cls}" src="https://flagcdn.com/w80/${code}.png" alt="" loading="lazy" />`;
+}
 
 // ════════════════════════════════
 // STATE
@@ -642,7 +673,7 @@ function renderTeamList() {
   document.getElementById('team-list').innerHTML = teams.map(t =>
     `<div class="team-card">
       <span class="rank">#${t.rank}</span>
-      <span class="flag">${t.flag}</span>
+      <span class="flag">${flagImg(t.code, 'flag-img')}</span>
       <span class="name">${t.name}</span>
     </div>`
   ).join('');
@@ -662,6 +693,7 @@ function changeCount(d) {
 function renderPlayerInputs() {
   const prev = S.players.slice();
   const c = document.getElementById('player-inputs');
+  c.classList.toggle('two-col', S.playerCount > 4);
   c.innerHTML = '';
   for (let i = 0; i < S.playerCount; i++) {
     const row = document.createElement('div');
@@ -715,7 +747,7 @@ function gridCardHTML(a, i) {
   return `<div class="grid-card" id="grid-card-${i}" onclick="flipGridCard(${i})">
     <div class="grid-face grid-front"><span class="gf-qmark">?</span></div>
     <div class="grid-face grid-back">
-      <div class="gb-flag">${a.flag}</div>
+      <div class="gb-flag">${flagImg(a.code, 'flag-img')}</div>
       <div class="gb-name">${a.name}</div>
       <div class="gb-rank">FIFA #${a.rank}</div>
       <div class="gb-sep"></div>
@@ -799,13 +831,13 @@ function renderQFPreviews() {
     S.matches.qf.map(m => `
       <div class="qf-preview">
         <div class="qfp-side">
-          <div class="pf">${m.teamA.flag}</div>
+          <div class="pf">${flagImg(m.teamA.code, 'flag-img')}</div>
           <div class="pn">${m.teamA.name}</div>
           <div class="pp">${m.teamA.player}</div>
         </div>
         <div class="qfp-vs">VS</div>
         <div class="qfp-side">
-          <div class="pf">${m.teamB.flag}</div>
+          <div class="pf">${flagImg(m.teamB.code, 'flag-img')}</div>
           <div class="pn">${m.teamB.name}</div>
           <div class="pp">${m.teamB.player}</div>
         </div>
@@ -872,7 +904,7 @@ function matchHTML(m, round, idx, isActive) {
       <span class="wr-label">WINNER</span>
       <span style="font-size:14px;font-weight:600;flex:1;padding:0 8px;
         overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
-        ${winner.flag} ${winner.name}
+        ${flagImg(winner.code, 'flag-img-sm')} ${winner.name}
       </span>
       <span class="wr-score">${m.scoreA}–${m.scoreB}</span>
     </div>`;
@@ -884,7 +916,7 @@ function matchHTML(m, round, idx, isActive) {
     return `<div class="${cls}" id="match-${round}-${idx}">
       <div class="mc-label">${m.label}</div>
       <div class="mc-team-score">
-        <span class="tf">${m.teamA.flag}</span>
+        <span class="tf">${flagImg(m.teamA.code, 'flag-img-sm')}</span>
         <div class="ti">
           <div class="tn">${m.teamA.name}</div>
           <div class="tp">${m.teamA.player}</div>
@@ -896,7 +928,7 @@ function matchHTML(m, round, idx, isActive) {
       </div>
       <div class="mc-sep"></div>
       <div class="mc-team-score">
-        <span class="tf">${m.teamB.flag}</span>
+        <span class="tf">${flagImg(m.teamB.code, 'flag-img-sm')}</span>
         <div class="ti">
           <div class="tn">${m.teamB.name}</div>
           <div class="tp">${m.teamB.player}</div>
@@ -922,7 +954,7 @@ function matchHTML(m, round, idx, isActive) {
   return `<div class="${cls}" id="match-${round}-${idx}">
     <div class="mc-label">${m.label}</div>
     <div class="mc-team ${aWon ? 'win' : bWon ? 'lose' : ''}">
-      <span class="tf">${m.teamA.flag}</span>
+      <span class="tf">${flagImg(m.teamA.code, 'flag-img-sm')}</span>
       <div class="ti">
         <div class="tn">${m.teamA.name}</div>
         <div class="tp">${m.teamA.player}</div>
@@ -931,7 +963,7 @@ function matchHTML(m, round, idx, isActive) {
     </div>
     <div class="mc-sep"></div>
     <div class="mc-team ${bWon ? 'win' : aWon ? 'lose' : ''}">
-      <span class="tf">${m.teamB.flag}</span>
+      <span class="tf">${flagImg(m.teamB.code, 'flag-img-sm')}</span>
       <div class="ti">
         <div class="tn">${m.teamB.name}</div>
         <div class="tp">${m.teamB.player}</div>
@@ -1027,7 +1059,7 @@ function renderChampion() {
   el.innerHTML = `<div class="champ-banner">
     <div class="cb-trophy">🏆</div>
     <div class="cb-sub">EA FC 26 Champion</div>
-    <div class="cb-flag">${w.flag}</div>
+    <div class="cb-flag">${flagImg(w.code, 'flag-img')}</div>
     <div class="cb-team">${w.name}</div>
     <div class="cb-player">${w.player}</div>
   </div>`;
