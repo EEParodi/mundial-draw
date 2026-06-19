@@ -56,6 +56,7 @@ body{display:flex;justify-content:center}
   animation:fadeUp .3s ease-out;
 }
 .view.hidden{display:none!important}
+.hidden{display:none!important}
 
 @keyframes fadeUp{
   from{opacity:0;transform:translateY(14px)}
@@ -190,85 +191,48 @@ body{display:flex;justify-content:center}
   font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:3px;color:var(--primary);margin-top:4px;
 }
 
-/* Flip card */
-.flip-wrap{
-  perspective:900px;
-  height:200px;
-  margin-bottom:16px;
-  cursor:pointer;
+/* 4×2 card grid */
+.card-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+  margin-bottom:12px;
+}
+.grid-card{
+  height:200px;cursor:pointer;position:relative;
+  transform-style:preserve-3d;
+  transition:transform .55s ease-out;
+  border-radius:var(--r-sm);
   touch-action:manipulation;
 }
-.flip-card{
-  width:100%;height:100%;position:relative;
-  transform-style:preserve-3d;
-  transition:transform .6s ease-out;
-}
-.flip-card.flipped{transform:rotateY(180deg)}
-.card-face{
-  position:absolute;inset:0;
-  border-radius:var(--r);
-  backface-visibility:hidden;
-  -webkit-backface-visibility:hidden;
+.grid-card.flipped{transform:rotateY(180deg)}
+.grid-face{
+  position:absolute;inset:0;border-radius:var(--r-sm);
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:20px;
+  gap:3px;padding:8px 4px;
 }
-.card-front{
+.grid-front{
   background:var(--primary);
   background-image:repeating-linear-gradient(
     45deg,rgba(0,0,0,.12) 0,rgba(0,0,0,.12) 1px,
     transparent 1px,transparent 14px
   );
 }
-.card-front .qmark{
-  font-family:'Bebas Neue',cursive;font-size:88px;
-  color:rgba(255,255,255,.25);line-height:1;
+.gf-qmark{font-size:28px;color:rgba(255,255,255,.7);font-family:'Bebas Neue',cursive}
+.grid-back{
+  background:var(--surface);border:1px solid var(--border);
+  transform:rotateY(180deg);text-align:center;overflow:hidden;
 }
-.card-front .tap{
-  font-size:11px;letter-spacing:3px;
-  color:rgba(255,255,255,.6);text-transform:uppercase;margin-top:8px;
-}
-.card-back{
-  background:var(--surface);
-  border:2px solid var(--primary);
-  transform:rotateY(180deg);
-  gap:2px;
-}
-.card-back .b-flag{font-size:44px;line-height:1;margin-bottom:4px}
-.card-back .b-name{
-  font-family:'Bebas Neue',cursive;
-  font-size:clamp(18px,5.5vw,26px);
-  letter-spacing:1px;text-align:center;line-height:1.1;
-}
-.card-back .b-rank{font-size:11px;color:var(--primary);letter-spacing:1px;margin-top:2px}
-.card-back .b-sep{width:36px;height:1px;background:var(--border);margin:8px auto}
-.card-back .b-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
-.card-back .b-player{font-size:18px;font-weight:700;text-align:center;margin-top:2px}
-
-/* Revealed items — same size as the active flip card */
-.revealed-list{display:flex;flex-direction:column;gap:8px}
-.r-item{
-  width:100%;height:200px;
-  background:var(--surface);
-  border-radius:var(--r);
-  border:1px solid var(--border);
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:2px;padding:20px;
-  animation:slideDown .32s ease-out;
-}
-@keyframes slideDown{
-  from{opacity:0;transform:translateY(-12px)}
-  to{opacity:1;transform:translateY(0)}
-}
-.r-item .ri-flag{font-size:44px;line-height:1;margin-bottom:4px}
-.r-item .ri-name{
-  font-family:'Bebas Neue',cursive;
-  font-size:clamp(18px,5.5vw,26px);
-  letter-spacing:1px;text-align:center;line-height:1.1;
-}
-.r-item .ri-rank{font-size:11px;color:var(--primary);letter-spacing:1px;margin-top:2px}
-.r-item .ri-sep{width:36px;height:1px;background:var(--border);margin:8px 0}
-.r-item .ri-label{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
-.r-item .ri-player{font-size:18px;font-weight:700;text-align:center;margin-top:2px}
+.gb-flag{font-size:22px;line-height:1}
+.gb-name{font-size:11px;font-weight:700;color:var(--text);line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:84px}
+.gb-rank{font-size:9px;color:var(--primary);letter-spacing:.5px}
+.gb-sep{width:28px;height:1px;background:var(--border);margin:3px 0}
+.gb-label{font-size:8px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.gb-player{font-size:11px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:84px}
+#btn-bracket:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
 
 /* QF matchup preview */
 .qf-previews{display:flex;flex-direction:column;gap:8px;margin-bottom:20px}
@@ -520,38 +484,29 @@ body{display:flex;justify-content:center}
 
     <div class="draw-header">
       <div class="h2" style="color:var(--primary)">THE DRAW</div>
-      <div class="draw-counter" id="draw-counter">CARD 1 OF 8</div>
+      <div class="draw-counter" id="draw-counter">0 / 8 REVEALED</div>
     </div>
 
-    <!-- Flip card -->
-    <div class="flip-wrap" id="flip-wrap" onclick="flipCard()">
-      <div class="flip-card" id="flip-card">
-        <div class="card-face card-front">
-          <div class="qmark">?</div>
-          <div class="tap">TAP TO REVEAL</div>
-        </div>
-        <div class="card-face card-back" id="card-back">
-          <!-- populated by JS -->
-        </div>
-      </div>
-    </div>
+    <!-- 4×2 card grid (populated by JS) -->
+    <div class="card-grid" id="card-grid"></div>
 
-    <!-- Next card button (hidden until flip) -->
+    <!-- Next card button -->
     <button class="btn btn-ghost gap-8 hidden" id="btn-next" onclick="nextCard()">
       NEXT CARD →
     </button>
 
-    <!-- Revealed items -->
-    <div class="gap-16"></div>
-    <div class="revealed-list" id="revealed-list"></div>
-
-    <!-- Complete section -->
+    <!-- QF previews (shown after all cards flipped) -->
     <div id="draw-complete" class="hidden">
       <div class="gap-20"></div>
       <span class="label">QUARTER-FINAL DRAW</span>
       <div class="qf-previews" id="qf-previews"></div>
-      <button class="btn btn-primary" onclick="goToBracket()">VIEW BRACKET →</button>
     </div>
+
+    <div class="gap-16"></div>
+    <!-- Always visible; disabled until draw is complete -->
+    <button id="btn-bracket" class="btn btn-primary" disabled onclick="goToBracket()">
+      VIEW BRACKET →
+    </button>
 
   </div>
 
@@ -633,8 +588,7 @@ let S = {
   playerCount: 4,
   players: [],
   assignments: [],     // [{...team, player}]
-  drawIdx: 0,
-  cardFlipped: false,
+  flippedCards: [],    // boolean[8]
   drawDone: false,
   matches: {
     qf: [],
@@ -653,6 +607,12 @@ let S = {
     S = saved;
     showView('bracket');
     renderBracket();
+  } else if (saved && saved.assignments && saved.assignments.length === 8) {
+    S = saved;
+    if (!S.flippedCards || S.flippedCards.length !== 8)
+      S.flippedCards = new Array(8).fill(false);
+    showView('draw');
+    restoreDrawGrid();
   } else {
     renderSetup();
   }
@@ -732,7 +692,6 @@ function updateStart() {
 // DRAW
 // ════════════════════════════════
 function startDraw() {
-  // Collect names fresh from inputs
   S.players = [...document.querySelectorAll('#player-inputs input')]
     .map(inp => inp.value.trim());
 
@@ -744,95 +703,75 @@ function startDraw() {
     player: S.players[i % S.playerCount],
   }));
 
-  S.drawIdx = 0;
-  S.cardFlipped = false;
+  S.flippedCards = new Array(8).fill(false);
   S.drawDone = false;
 
-  // Clear draw view
-  document.getElementById('revealed-list').innerHTML = '';
-  document.getElementById('draw-complete').classList.add('hidden');
-  document.getElementById('btn-next').classList.add('hidden');
-  document.getElementById('flip-wrap').style.display = '';
-
   showView('draw');
-  loadCardContent(0);
+  buildDrawGrid();
+  saveState();
 }
 
-function loadCardContent(idx) {
-  const a = S.assignments[idx];
-  document.getElementById('draw-counter').textContent =
-    `CARD ${idx + 1} OF 8`;
+function gridCardHTML(a, i) {
+  return `<div class="grid-card" id="grid-card-${i}" onclick="flipGridCard(${i})">
+    <div class="grid-face grid-front"><span class="gf-qmark">?</span></div>
+    <div class="grid-face grid-back">
+      <div class="gb-flag">${a.flag}</div>
+      <div class="gb-name">${a.name}</div>
+      <div class="gb-rank">FIFA #${a.rank}</div>
+      <div class="gb-sep"></div>
+      <div class="gb-label">PLAYER</div>
+      <div class="gb-player">${a.player}</div>
+    </div>
+  </div>`;
+}
 
-  // Reset flip instantly (no animation)
-  const card = document.getElementById('flip-card');
-  card.style.transition = 'none';
-  card.classList.remove('flipped');
-  void card.offsetWidth; // force reflow
-  requestAnimationFrame(() => {
-    card.style.transition = '';
-    S.cardFlipped = false;
+function buildDrawGrid() {
+  document.getElementById('card-grid').innerHTML =
+    S.assignments.map((a, i) => gridCardHTML(a, i)).join('');
+  document.getElementById('draw-counter').textContent = '0 / 8 REVEALED';
+  document.getElementById('draw-complete').classList.add('hidden');
+  document.getElementById('btn-next').classList.remove('hidden');
+  document.getElementById('btn-bracket').disabled = true;
+}
+
+function restoreDrawGrid() {
+  document.getElementById('card-grid').innerHTML =
+    S.assignments.map((a, i) => gridCardHTML(a, i)).join('');
+  S.flippedCards.forEach((flipped, i) => {
+    if (flipped) document.getElementById(`grid-card-${i}`).classList.add('flipped');
   });
-
-  document.getElementById('card-back').innerHTML = `
-    <div class="b-flag">${a.flag}</div>
-    <div class="b-name">${a.name}</div>
-    <div class="b-rank">FIFA #${a.rank}</div>
-    <div class="b-sep"></div>
-    <div class="b-label">PLAYER</div>
-    <div class="b-player">${a.player}</div>
-  `;
+  const n = S.flippedCards.filter(Boolean).length;
+  document.getElementById('draw-counter').textContent = `${n} / 8 REVEALED`;
+  if (S.flippedCards.every(Boolean)) {
+    finishDraw();
+  } else {
+    document.getElementById('btn-next').classList.remove('hidden');
+    document.getElementById('btn-bracket').disabled = true;
+  }
 }
 
-function flipCard() {
-  if (S.cardFlipped || S.drawDone) return;
-  S.cardFlipped = true;
-  document.getElementById('flip-card').classList.add('flipped');
-  setTimeout(() => {
-    if (S.drawIdx === 7) {
-      // Last card — let them see it, then auto-complete
-      setTimeout(() => nextCard(), 1000);
-    } else {
-      document.getElementById('btn-next').classList.remove('hidden');
-    }
-  }, 650);
+function flipGridCard(i) {
+  if (S.flippedCards[i] || S.drawDone) return;
+  S.flippedCards[i] = true;
+  document.getElementById(`grid-card-${i}`).classList.add('flipped');
+  const n = S.flippedCards.filter(Boolean).length;
+  document.getElementById('draw-counter').textContent = `${n} / 8 REVEALED`;
+  saveState();
+  if (S.flippedCards.every(Boolean)) finishDraw();
 }
 
 function nextCard() {
-  document.getElementById('btn-next').classList.add('hidden');
-  // Add to revealed list
-  appendRevealed(S.assignments[S.drawIdx]);
-  S.drawIdx++;
-
-  if (S.drawIdx >= 8) {
-    finishDraw();
-    return;
-  }
-  loadCardContent(S.drawIdx);
-}
-
-function appendRevealed(a) {
-  const el = document.createElement('div');
-  el.className = 'r-item';
-  el.innerHTML = `
-    <div class="ri-flag">${a.flag}</div>
-    <div class="ri-name">${a.name}</div>
-    <div class="ri-rank">FIFA #${a.rank}</div>
-    <div class="ri-sep"></div>
-    <div class="ri-label">PLAYER</div>
-    <div class="ri-player">${a.player}</div>
-  `;
-  document.getElementById('revealed-list').appendChild(el);
+  const next = S.flippedCards.indexOf(false);
+  if (next !== -1) flipGridCard(next);
 }
 
 function finishDraw() {
   S.drawDone = true;
-  document.getElementById('flip-wrap').style.display = 'none';
-  document.getElementById('draw-counter').style.display = 'none';
-
   buildBracket();
   renderQFPreviews();
-
   document.getElementById('draw-complete').classList.remove('hidden');
+  document.getElementById('btn-next').classList.add('hidden');
+  document.getElementById('btn-bracket').disabled = false;
   saveState();
 }
 
@@ -1102,15 +1041,14 @@ function confirmRestart() {
   localStorage.removeItem('mundialDraw');
   S = {
     tier: 'top', playerCount: 4, players: [],
-    assignments: [], drawIdx: 0, cardFlipped: false, drawDone: false,
+    assignments: [], flippedCards: [], drawDone: false,
     matches: {qf: [], sf: [], final: null}, bracketDone: false,
   };
   // Reset draw view UI
-  document.getElementById('flip-wrap').style.display = '';
-  document.getElementById('draw-counter').style.display = '';
-  document.getElementById('flip-card').classList.remove('flipped');
-  document.getElementById('revealed-list').innerHTML = '';
+  document.getElementById('card-grid').innerHTML = '';
+  document.getElementById('draw-counter').textContent = '0 / 8 REVEALED';
   document.getElementById('draw-complete').classList.add('hidden');
+  document.getElementById('btn-bracket').disabled = true;
   document.getElementById('champion').classList.add('hidden');
   document.getElementById('tier-tabs').querySelectorAll('.tab').forEach(b =>
     b.classList.toggle('active', b.dataset.tier === 'top')
