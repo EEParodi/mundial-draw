@@ -155,6 +155,7 @@ body{display:flex;justify-content:center}
 
 /* ── PLAYER INPUTS ── */
 .player-inputs{display:flex;flex-direction:column;gap:8px}
+.player-inputs.two-col{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 .pi-row{
   display:flex;align-items:center;gap:10px;
   background:var(--surface);
@@ -191,10 +192,10 @@ body{display:flex;justify-content:center}
   font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:3px;color:var(--primary);margin-top:4px;
 }
 
-/* 4×2 card grid */
+/* 2×4 card grid */
 .card-grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(2,1fr);
   gap:8px;
   margin-bottom:12px;
 }
@@ -224,14 +225,14 @@ body{display:flex;justify-content:center}
   background:var(--surface);border:1px solid var(--border);
   transform:rotateY(180deg);text-align:center;overflow:hidden;
 }
-.gb-flag{font-size:22px;line-height:1}
-.gb-name{font-size:11px;font-weight:700;color:var(--text);line-height:1.2;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:84px}
-.gb-rank{font-size:9px;color:var(--primary);letter-spacing:.5px}
-.gb-sep{width:28px;height:1px;background:var(--border);margin:3px 0}
-.gb-label{font-size:8px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
-.gb-player{font-size:11px;font-weight:700;color:var(--text);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:84px}
+.gb-flag{font-size:32px;line-height:1}
+.gb-name{font-size:15px;font-weight:700;color:var(--text);line-height:1.2;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%}
+.gb-rank{font-size:11px;color:var(--primary);letter-spacing:.5px}
+.gb-sep{width:36px;height:1px;background:var(--border);margin:4px 0}
+.gb-label{font-size:9px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+.gb-player{font-size:14px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:90%}
 #btn-bracket:disabled{opacity:.35;cursor:not-allowed;pointer-events:none}
 
 /* QF matchup preview */
@@ -565,7 +566,7 @@ const TOP8 = [
   {rank:4,  name:'England',    flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
   {rank:5,  name:'Portugal',   flag:'🇵🇹'},
   {rank:6,  name:'Brazil',     flag:'🇧🇷'},
-  {rank:7,  name:'Morocco',    flag:'🇲🇦'},
+  {rank:7,  name:'Germany',    flag:'🇩🇪'},
   {rank:8,  name:'Netherlands',flag:'🇳🇱'},
 ];
 
@@ -662,6 +663,7 @@ function changeCount(d) {
 function renderPlayerInputs() {
   const prev = S.players.slice();
   const c = document.getElementById('player-inputs');
+  c.classList.toggle('two-col', S.playerCount > 4);
   c.innerHTML = '';
   for (let i = 0; i < S.playerCount; i++) {
     const row = document.createElement('div');
