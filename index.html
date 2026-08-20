@@ -486,6 +486,13 @@ body{display:flex;justify-content:center}
     <div class="team-list" id="team-list"></div>
 
     <div class="gap-20"></div>
+    <span class="label">FORMAT</span>
+    <div class="tabs" id="mode-tabs">
+      <button class="tab active" data-mode="single" onclick="selectMode('single')">SINGLE ELIM</button>
+      <button class="tab" data-mode="double" onclick="selectMode('double')">DOUBLE ELIM</button>
+    </div>
+
+    <div class="gap-20"></div>
     <span class="label">PLAYERS</span>
     <div class="stepper">
       <button class="stepper-btn" id="btn-minus" onclick="changeCount(-1)">−</button>
@@ -551,8 +558,8 @@ body{display:flex;justify-content:center}
     <!-- Champion -->
     <div id="champion" class="hidden"></div>
 
-    <!-- Horizontal bracket -->
-    <div class="bracket-scroll">
+    <!-- Single-elimination bracket -->
+    <div id="bracket-single" class="bracket-scroll">
       <div class="bracket-cols">
 
         <!-- QF column -->
@@ -574,6 +581,64 @@ body{display:flex;justify-content:center}
         </div>
 
       </div>
+    </div>
+
+    <!-- Double-elimination bracket -->
+    <div id="bracket-double" class="hidden">
+
+      <div class="label" style="margin:0 0 8px">WINNERS BRACKET</div>
+      <div class="bracket-scroll">
+        <div class="bracket-cols">
+          <div class="bracket-col">
+            <div class="round-badge" id="badge-wr1">WINNERS R1</div>
+            <div class="col-matches" id="matches-wr1"></div>
+          </div>
+          <div class="bracket-col">
+            <div class="round-badge dim" id="badge-wr2">WINNERS R2</div>
+            <div class="col-matches sf-col" id="matches-wr2"></div>
+          </div>
+          <div class="bracket-col">
+            <div class="round-badge dim" id="badge-wf">WINNERS FINAL</div>
+            <div class="col-matches final-col" id="matches-wf"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="label" style="margin:16px 0 8px">LOSERS BRACKET</div>
+      <div class="bracket-scroll">
+        <div class="bracket-cols">
+          <div class="bracket-col">
+            <div class="round-badge dim" id="badge-lr1">LOSERS R1</div>
+            <div class="col-matches" id="matches-lr1"></div>
+          </div>
+          <div class="bracket-col">
+            <div class="round-badge dim" id="badge-lr2">LOSERS R2</div>
+            <div class="col-matches" id="matches-lr2"></div>
+          </div>
+          <div class="bracket-col">
+            <div class="round-badge dim" id="badge-lr3">LOSERS R3</div>
+            <div class="col-matches final-col" id="matches-lr3"></div>
+          </div>
+          <div class="bracket-col">
+            <div class="round-badge dim" id="badge-lf">LOSERS FINAL</div>
+            <div class="col-matches final-col" id="matches-lf"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gap-20"></div>
+      <div class="bracket-col" style="margin:0 auto;max-width:280px">
+        <div class="round-badge dim" id="badge-gf">GRAND FINAL</div>
+        <div class="col-matches" id="matches-gf"></div>
+      </div>
+
+      <div id="gf-reset-wrap" class="hidden gap-16">
+        <div class="bracket-col" style="margin:0 auto;max-width:280px">
+          <div class="round-badge dim" id="badge-gfreset">RESET MATCH</div>
+          <div class="col-matches" id="matches-gfreset"></div>
+        </div>
+      </div>
+
     </div>
 
     <div style="height:24px"></div>
@@ -616,15 +681,17 @@ function flagImg(code, cls) {
 // ════════════════════════════════
 let S = {
   tier: 'top',
+  mode: 'single',       // 'single' | 'double'
   playerCount: 4,
   players: [],
   assignments: [],     // [{...team, player}]
   flippedCards: [],    // boolean[8]
   drawDone: false,
   matches: {
-    qf: [],
-    sf: [],
-    final: null,
+    qf: [], sf: [], final: null,                        // single-elim
+    wr1: [], wr2: [], wf: null,                          // double-elim: winners bracket
+    lr1: [], lr2: [], lr3: [], lf: null,                 // double-elim: losers bracket
+    gf: null, gfReset: null,                             // double-elim: grand final (+ optional reset)
   },
   bracketDone: false,
 };
@@ -658,6 +725,9 @@ function renderSetup() {
   updateStart();
   document.getElementById('btn-minus').disabled = S.playerCount <= 2;
   document.getElementById('btn-plus').disabled  = S.playerCount >= 8;
+  document.querySelectorAll('#mode-tabs .tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === (S.mode || 'single'))
+  );
 }
 
 function selectTier(t) {
@@ -666,6 +736,13 @@ function selectTier(t) {
     b.classList.toggle('active', b.dataset.tier === t)
   );
   renderTeamList();
+}
+
+function selectMode(m) {
+  S.mode = m;
+  document.querySelectorAll('#mode-tabs .tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === m)
+  );
 }
 
 function renderTeamList() {
@@ -808,6 +885,11 @@ function finishDraw() {
 }
 
 function buildBracket() {
+  if (S.mode === 'double') buildDoubleBracket();
+  else buildSingleBracket();
+}
+
+function buildSingleBracket() {
   const a = S.assignments;
   S.matches.qf = [
     mkMatch(a[0], a[1], 'QUARTER-FINAL 1'),
@@ -822,13 +904,41 @@ function buildBracket() {
   S.matches.final = mkMatch(null, null, 'FINAL');
 }
 
+function buildDoubleBracket() {
+  const a = S.assignments;
+  S.matches.wr1 = [
+    mkMatch(a[0], a[1], 'WINNERS R1 · 1'),
+    mkMatch(a[2], a[3], 'WINNERS R1 · 2'),
+    mkMatch(a[4], a[5], 'WINNERS R1 · 3'),
+    mkMatch(a[6], a[7], 'WINNERS R1 · 4'),
+  ];
+  S.matches.wr2 = [
+    mkMatch(null, null, 'WINNERS R2 · 1'),
+    mkMatch(null, null, 'WINNERS R2 · 2'),
+  ];
+  S.matches.wf = mkMatch(null, null, 'WINNERS FINAL');
+  S.matches.lr1 = [
+    mkMatch(null, null, 'LOSERS R1 · 1'),
+    mkMatch(null, null, 'LOSERS R1 · 2'),
+  ];
+  S.matches.lr2 = [
+    mkMatch(null, null, 'LOSERS R2 · 1'),
+    mkMatch(null, null, 'LOSERS R2 · 2'),
+  ];
+  S.matches.lr3 = mkMatch(null, null, 'LOSERS R3');
+  S.matches.lf  = mkMatch(null, null, 'LOSERS FINAL');
+  S.matches.gf  = mkMatch(null, null, 'GRAND FINAL');
+  S.matches.gfReset = null;
+}
+
 function mkMatch(a, b, label) {
   return {label, teamA:a, teamB:b, scoreA:'', scoreB:'', winner:null};
 }
 
 function renderQFPreviews() {
+  const firstRound = S.mode === 'double' ? S.matches.wr1 : S.matches.qf;
   document.getElementById('qf-previews').innerHTML =
-    S.matches.qf.map(m => `
+    firstRound.map(m => `
       <div class="qf-preview">
         <div class="qfp-side">
           <div class="pf">${flagImg(m.teamA.code, 'flag-img')}</div>
@@ -854,6 +964,13 @@ function goToBracket() {
 // BRACKET
 // ════════════════════════════════
 function renderBracket() {
+  document.getElementById('bracket-single').classList.toggle('hidden', S.mode === 'double');
+  document.getElementById('bracket-double').classList.toggle('hidden', S.mode !== 'double');
+  if (S.mode === 'double') renderDoubleBracket();
+  else renderSingleBracket();
+}
+
+function renderSingleBracket() {
   const qfDone = S.matches.qf.every(m => m.winner);
   const sfDone = S.matches.sf.every(m => m.winner);
   const finalDone = S.matches.final && S.matches.final.winner;
@@ -878,6 +995,57 @@ function renderBracket() {
 
   // Champion
   if (finalDone) renderChampion();
+}
+
+function renderDoubleBracket() {
+  const M = S.matches;
+  const wr1Done = M.wr1.every(m => m.winner);
+  const wr2Done = M.wr2.every(m => m.winner);
+  const wfDone  = !!(M.wf && M.wf.winner);
+  const lr1Done = M.lr1.every(m => m.winner);
+  const lr2Done = M.lr2.every(m => m.winner);
+  const lr3Done = !!(M.lr3 && M.lr3.winner);
+  const lfDone  = !!(M.lf && M.lf.winner);
+  const gfDone  = !!(M.gf && M.gf.winner);
+  const gfResetDone = !!(M.gfReset && M.gfReset.winner);
+
+  document.getElementById('badge-wr2').classList.toggle('dim', !wr1Done);
+  document.getElementById('badge-wf').classList.toggle('dim', !wr2Done);
+  document.getElementById('badge-lr1').classList.toggle('dim', !wr1Done);
+  document.getElementById('badge-lr2').classList.toggle('dim', !(lr1Done && wr2Done));
+  document.getElementById('badge-lr3').classList.toggle('dim', !lr2Done);
+  document.getElementById('badge-lf').classList.toggle('dim', !(lr3Done && wfDone));
+  document.getElementById('badge-gf').classList.toggle('dim', !lfDone);
+
+  document.getElementById('matches-wr1').innerHTML =
+    M.wr1.map((m, i) => matchHTML(m, 'wr1', i, !wr1Done && !m.winner)).join('');
+  document.getElementById('matches-wr2').innerHTML =
+    M.wr2.map((m, i) => matchHTML(m, 'wr2', i, wr1Done && !wr2Done && !m.winner)).join('');
+  document.getElementById('matches-wf').innerHTML =
+    matchHTML(M.wf, 'wf', 0, wr2Done && !wfDone);
+
+  document.getElementById('matches-lr1').innerHTML =
+    M.lr1.map((m, i) => matchHTML(m, 'lr1', i, wr1Done && !lr1Done && !m.winner)).join('');
+  document.getElementById('matches-lr2').innerHTML =
+    M.lr2.map((m, i) => matchHTML(m, 'lr2', i, lr1Done && wr2Done && !lr2Done && !m.winner)).join('');
+  document.getElementById('matches-lr3').innerHTML =
+    matchHTML(M.lr3, 'lr3', 0, lr2Done && !lr3Done);
+  document.getElementById('matches-lf').innerHTML =
+    matchHTML(M.lf, 'lf', 0, lr3Done && wfDone && !lfDone);
+
+  document.getElementById('matches-gf').innerHTML =
+    matchHTML(M.gf, 'gf', 0, lfDone && !gfDone);
+
+  const resetWrap = document.getElementById('gf-reset-wrap');
+  if (M.gfReset) {
+    resetWrap.classList.remove('hidden');
+    document.getElementById('matches-gfreset').innerHTML =
+      matchHTML(M.gfReset, 'gfReset', 0, gfDone && !gfResetDone);
+  } else {
+    resetWrap.classList.add('hidden');
+  }
+
+  if (S.bracketDone) renderChampion();
 }
 
 function matchHTML(m, round, idx, isActive) {
@@ -1012,8 +1180,18 @@ function confirmResult(round, idx) {
   const b = parseInt(m.scoreB);
   m.winner = a > b ? 'A' : 'B';
   const winner = m.winner === 'A' ? m.teamA : m.teamB;
+  const loser  = m.winner === 'A' ? m.teamB : m.teamA;
 
-  // Advance winner to next round
+  if (S.mode === 'double') advanceDouble(round, idx, m, winner, loser);
+  else advanceSingle(round, idx, winner);
+
+  saveState();
+  renderBracket();
+
+  setTimeout(() => scrollToNext(round), 300);
+}
+
+function advanceSingle(round, idx, winner) {
   if (round === 'qf') {
     const sfIdx = idx < 2 ? 0 : 1;
     const sfSide = idx % 2 === 0 ? 'teamA' : 'teamB';
@@ -1024,36 +1202,90 @@ function confirmResult(round, idx) {
   } else {
     S.bracketDone = true;
   }
+}
 
-  saveState();
-  renderBracket();
-
-  // Scroll to next column (horizontal) or champion (vertical)
-  setTimeout(() => {
-    if (round === 'final') {
-      const el = document.getElementById('champion');
-      if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+function advanceDouble(round, idx, m, winner, loser) {
+  const M = S.matches;
+  if (round === 'wr1') {
+    M.wr2[idx < 2 ? 0 : 1][idx % 2 === 0 ? 'teamA' : 'teamB'] = winner;
+    M.lr1[idx < 2 ? 0 : 1][idx % 2 === 0 ? 'teamA' : 'teamB'] = loser;
+  } else if (round === 'wr2') {
+    M.wf[idx === 0 ? 'teamA' : 'teamB'] = winner;
+    // crossed drop, so losers-bracket teams never rematch
+    M.lr2[idx === 0 ? 1 : 0].teamB = loser;
+  } else if (round === 'wf') {
+    M.gf.teamA = winner;
+    M.lf.teamB = loser;
+  } else if (round === 'lr1') {
+    M.lr2[idx].teamA = winner;
+  } else if (round === 'lr2') {
+    M.lr3[idx === 0 ? 'teamA' : 'teamB'] = winner;
+  } else if (round === 'lr3') {
+    M.lf.teamA = winner;
+  } else if (round === 'lf') {
+    M.gf.teamB = winner;
+  } else if (round === 'gf') {
+    if (m.winner === 'A') {
+      S.bracketDone = true; // winners-bracket side won outright, no reset needed
     } else {
-      const allQFDone = S.matches.qf.every(m => m.winner);
-      const allSFDone = S.matches.sf.every(m => m.winner);
-      const nextId = (round === 'qf' && allQFDone) ? 'matches-sf'
-                   : (round === 'sf' && allSFDone)  ? 'matches-final'
-                   : null;
-      if (nextId) {
-        const el = document.getElementById(nextId);
-        if (el) el.scrollIntoView({behavior:'smooth', block:'nearest', inline:'start'});
-      }
+      M.gfReset = mkMatch(M.gf.teamA, M.gf.teamB, 'GRAND FINAL · RESET');
     }
-  }, 300);
+  } else if (round === 'gfReset') {
+    S.bracketDone = true;
+  }
+}
+
+function scrollToNext(round) {
+  if (S.mode === 'double') { scrollToNextDouble(round); return; }
+  if (round === 'final') {
+    const el = document.getElementById('champion');
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
+  const allQFDone = S.matches.qf.every(m => m.winner);
+  const allSFDone = S.matches.sf.every(m => m.winner);
+  const nextId = (round === 'qf' && allQFDone) ? 'matches-sf'
+               : (round === 'sf' && allSFDone)  ? 'matches-final'
+               : null;
+  if (nextId) {
+    const el = document.getElementById(nextId);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'nearest', inline:'start'});
+  }
+}
+
+function scrollToNextDouble(round) {
+  if (round === 'gf' || round === 'gfReset') {
+    const el = document.getElementById('champion');
+    if (el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
+  const M = S.matches;
+  const doneAll = arr => arr.every(m => m.winner);
+  const map = {
+    wr1: doneAll(M.wr1) ? 'matches-wr2' : null,
+    wr2: doneAll(M.wr2) ? 'matches-wf'  : null,
+    wf:  M.wf.winner ? 'matches-lf' : null,
+    lr1: doneAll(M.lr1) ? 'matches-lr2' : null,
+    lr2: doneAll(M.lr2) ? 'matches-lr3' : null,
+    lr3: M.lr3.winner ? 'matches-lf' : null,
+    lf:  M.lf.winner ? 'matches-gf' : null,
+  };
+  const nextId = map[round];
+  if (nextId) {
+    const el = document.getElementById(nextId);
+    if (el) el.scrollIntoView({behavior:'smooth', block:'nearest', inline:'start'});
+  }
 }
 
 function getMatch(round, idx) {
-  return round === 'final' ? S.matches.final : S.matches[round][idx];
+  const r = S.matches[round];
+  return Array.isArray(r) ? r[idx] : r;
 }
 
 function renderChampion() {
-  const final = S.matches.final;
-  const w = final.winner === 'A' ? final.teamA : final.teamB;
+  const finalMatch = S.mode === 'double' ? (S.matches.gfReset || S.matches.gf) : S.matches.final;
+  if (!finalMatch || !finalMatch.winner) return;
+  const w = finalMatch.winner === 'A' ? finalMatch.teamA : finalMatch.teamB;
   const el = document.getElementById('champion');
   el.classList.remove('hidden');
   el.innerHTML = `<div class="champ-banner">
@@ -1072,9 +1304,15 @@ function confirmRestart() {
   if (!confirm('Restart the tournament? All progress will be lost.')) return;
   localStorage.removeItem('mundialDraw');
   S = {
-    tier: 'top', playerCount: 4, players: [],
+    tier: 'top', mode: 'single', playerCount: 4, players: [],
     assignments: [], flippedCards: [], drawDone: false,
-    matches: {qf: [], sf: [], final: null}, bracketDone: false,
+    matches: {
+      qf: [], sf: [], final: null,
+      wr1: [], wr2: [], wf: null,
+      lr1: [], lr2: [], lr3: [], lf: null,
+      gf: null, gfReset: null,
+    },
+    bracketDone: false,
   };
   // Reset draw view UI
   document.getElementById('card-grid').innerHTML = '';
@@ -1082,8 +1320,12 @@ function confirmRestart() {
   document.getElementById('draw-complete').classList.add('hidden');
   document.getElementById('btn-bracket').disabled = true;
   document.getElementById('champion').classList.add('hidden');
+  document.getElementById('gf-reset-wrap').classList.add('hidden');
   document.getElementById('tier-tabs').querySelectorAll('.tab').forEach(b =>
     b.classList.toggle('active', b.dataset.tier === 'top')
+  );
+  document.getElementById('mode-tabs').querySelectorAll('.tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.mode === 'single')
   );
   document.getElementById('count-display').textContent = 4;
   showView('setup');
